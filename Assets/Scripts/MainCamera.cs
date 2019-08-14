@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class MainCamera : MonoBehaviour
 {
-    public Vector3 offset = Vector3.zero;
+    Vector3 offset = Vector3.zero;
+
+    void Start()
+    {
+        offset = transform.position;
+    }
 
     void Update()
     {
