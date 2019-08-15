@@ -99,7 +99,7 @@ public class Ally : MonoBehaviour
                         deltaFingerPos = endFingerPos - startFingerPos;
 
                         //if the swipe isn't enough big, skip to next touch
-                        if (deltaFingerPos.magnitude < 50)
+                        if (deltaFingerPos.magnitude < 10)
                             continue;
 
                         Vector3 move;
