@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class MainCamera : MonoBehaviour
 {
-    Vector3 offset = Vector3.zero;
+    Vector3 offset;
+    float smoothSpeed = 0.05f;
 
     void Start()
     {
@@ -13,10 +14,10 @@ public class MainCamera : MonoBehaviour
 
     void Update()
     {
-        if(Ally.boss != null)
+        if(Knight.Boss() != null)
         {
-            Vector3 targetPos = Ally.boss.transform.position + offset;
-            transform.position = Vector3.Lerp(transform.position, targetPos, 0.05f);
+            Vector3 targetPos = Knight.Boss().transform.position + offset;
+            transform.position = Vector3.Lerp(transform.position, targetPos, smoothSpeed);
         }
     }
 }

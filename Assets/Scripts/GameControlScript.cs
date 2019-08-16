@@ -9,9 +9,4 @@ public class GameControlScript : MonoBehaviour
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
-
-    public void KillBossButton()
-    {
-        Destroy(Ally.boss.gameObject);
-    }
 }
