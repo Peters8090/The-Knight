@@ -7,6 +7,7 @@ public class Knight : MonoBehaviour
 {
     #region Component References
     Rigidbody rb;
+    Animator animator;
     Light highlight;
     #endregion
 
@@ -32,31 +33,55 @@ public class Knight : MonoBehaviour
     #region Physics
     float speed = 10f;
     bool isGrounded = true;
+
+    /// <summary>
+    /// Damage suffered every second while not grounded
+    /// </summary>
+    float fallDamage = 50f;
     #endregion
 
     #region Stats
     float hp = 100f;
     #endregion
-
+    
+    #region Swipes
+    Vector2 startPos;
+    Vector2 endPos;
+    Vector2 deltaPos;
+    float minSwipe = 0.025f * Screen.width;
+    #endregion
+    
     void Start()
     {
         if (name == "Knight")
             knightRank = Enums.KnightRank.AllyBoss;
 
         rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
         highlight = transform.Find("Point Light").GetComponent<Light>();
     }
 
     void Update()
     {
-        //solution for the gravity problem (friction made it hard/impossible to move horizontally)
-        transform.position = new Vector3(transform.position.x, 0.1f, transform.position.z);
-
         isGrounded = GroundCheck();
-        
-        if (!isGrounded)
-            hp = 0f;
 
+        //solution for the gravity problem (friction made it hard/impossible to move horizontally)
+        rb.useGravity = !isGrounded;
+        if (isGrounded)
+        {
+            transform.position = new Vector3(transform.position.x, 0.1f, transform.position.z);
+        }
+        else
+        {
+            hp -= fallDamage * Time.deltaTime;
+        }
+        
+        
+        float velZ;
+        velZ = rb.velocity.z / speed;
+        //set animator VelZ, but it can't be greater than 1
+        animator.SetFloat("VelZ", Mathf.Abs(velZ) > 1 ? 1 : velZ);
+        
         switch (knightRank)
         {
             case Enums.KnightRank.Stranger:
@@ -77,11 +102,10 @@ public class Knight : MonoBehaviour
                     highlight.enabled = false;
 
                     //follow the boss
-                    if (Vector3.Distance(transform.position, Boss().transform.position) > 3)
+                    if (Vector3.Distance(transform.position, Boss().transform.position) > 3 && Boss().isGrounded)
                     {
                         transform.LookAt(Boss().transform);
-                        Vector3 move = Vector3.forward * Boss().rb.velocity.magnitude;
-                        transform.Translate(move * Time.deltaTime);
+                        transform.Translate(Vector3.forward * Boss().rb.velocity.magnitude * Time.deltaTime);
                         transform.localEulerAngles = Vector3.zero; //reset rotation to make the movement more natural
                     }
                 }
@@ -91,29 +115,29 @@ public class Knight : MonoBehaviour
             case Enums.KnightRank.AllyBoss:
                 highlight.enabled = true;
                 highlight.color = bossHighlightColor;
-
-                //velocity.z cannot be lower than 5
-                if (rb.velocity.z < speed * 0.5f)
-                    rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, speed * 0.5f);
+                
 
                 Vector2 swipe = DetectSwipes();
+                
+                Vector3 bossMove = Vector3.zero;
 
-                if (swipe != Vector2.zero)
-                {
-                    Vector3 move;
-                    move.x = swipe.x > 0 ? 1f : -1f;
-                    move.y = 0;
-                    move.z = swipe.y > 0 ? 0.5f : 0f;
+                if (swipe.x != 0)
+                    bossMove.x = swipe.x > 0 ? 1f : -1f;
+                if (swipe.y != 0)
+                    bossMove.z = swipe.y > 0 ? 0.5f : -0.2f;
+                
+                //velocity.z cannot be lower than 5
+                if (rb.velocity.z < speed * 0.5f)
+                    bossMove.z += speed * 0.5f * Time.deltaTime;
 
-                    rb.velocity += move * speed;
-                }
+                rb.velocity += bossMove * speed;
                 break;
         }
-
+        
         if (hp <= 0f)
             Destroy(gameObject);
     }
-
+    
     void OnTriggerEnter(Collider other)
     {
         if(other.GetComponent<Knight>())
@@ -131,12 +155,7 @@ public class Knight : MonoBehaviour
             return;
         }
     }
-
-    #region Swipes
-    Vector2 startPos;
-    Vector2 endPos;
-    Vector2 deltaPos;
-
+    
     Vector2 DetectSwipes()
     {
         Vector2 swipeDir = Vector2.zero;
@@ -152,20 +171,20 @@ public class Knight : MonoBehaviour
             {
                 endPos = touch.position;
                 deltaPos = endPos - startPos;
-
-                //if the swipe isn't enough big, skip to next touch
-                if (deltaPos.magnitude < 10)
-                    continue;
-
+                
                 //if the swipe's direction was up, then the swipeDir.x = 1f, if it was down, then swipeDir.y = -1f; Same thing with swipeDir.y
-                swipeDir.x = deltaPos.x > 0 ? 1f : -1f;
-                swipeDir.y = deltaPos.y > 0 ? 1f : -1f;
+
+                
+
+                if(Mathf.Abs(deltaPos.x) >= minSwipe)
+                    swipeDir.x = deltaPos.x > 0 ? 1f : -1f;
+                if (Mathf.Abs(deltaPos.y) >= minSwipe)
+                    swipeDir.y = deltaPos.y > 0 ? 1f : -1f;
             }
         }
 
         return swipeDir;
     }
-    #endregion
 
     bool GroundCheck()
     {
