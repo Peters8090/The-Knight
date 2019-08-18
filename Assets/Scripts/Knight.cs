@@ -10,7 +10,8 @@ public class Knight : MonoBehaviour
     #endregion
     
     #region Physics
-    protected float speed = 10f;
+    protected float speed;
+    protected float maxSpeed = 10f;
     protected bool isGrounded = true;
 
     /// <summary>
@@ -27,6 +28,7 @@ public class Knight : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
+        speed = maxSpeed;
     }
 
     protected virtual void Update()
@@ -51,6 +53,34 @@ public class Knight : MonoBehaviour
 
         if (hp <= 0f)
             Destroy(gameObject);
+
+        //health regeneration
+        hp += Time.deltaTime;
+    }
+
+    /// <summary>
+    /// Called when attacking a knight
+    /// </summary>
+    /// <param name="knight"></param>
+    protected void Attack(Knight knight)
+    {
+        knight.BeingHit();
+        this.BeingHit();
+    }
+
+    /// <summary>
+    /// Called during the fight after being hit
+    /// </summary>
+    protected void BeingHit()
+    {
+        animator.Play("Hit");
+        rb.constraints = RigidbodyConstraints.FreezeAll;
+        Invoke("Die", 1f);
+    }
+    
+    protected virtual void Die()
+    {
+        hp = 0;
     }
 
     protected bool GroundCheck()
