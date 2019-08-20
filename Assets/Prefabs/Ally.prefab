@@ -163,7 +163,7 @@ GameObject:
   - component: {fileID: 9134265100300512379}
   - component: {fileID: 7449541189496435419}
   - component: {fileID: 4127998983539873880}
-  - component: {fileID: 9139270552245254654}
+  - component: {fileID: 2004073948890620480}
   - component: {fileID: 9139270552245254640}
   - component: {fileID: 9139270552245254641}
   m_Layer: 0
@@ -199,7 +199,7 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9139270552245254653}
   m_Enabled: 1
-  m_Avatar: {fileID: 0}
+  m_Avatar: {fileID: 9000000, guid: a4b1e30245c74ff4a8f87596a84db0dc, type: 3}
   m_Controller: {fileID: 9100000, guid: f8aaff4377d54cf4d8b91608ca17777e, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
@@ -222,8 +222,8 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1.1195319, z: 1}
   m_Center: {x: 0, y: 0.55976593, z: 0}
---- !u!65 &9139270552245254654
-BoxCollider:
+--- !u!135 &2004073948890620480
+SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -233,7 +233,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 2, y: 2, z: 2}
+  m_Radius: 1.2
   m_Center: {x: 0, y: 0.6, z: 0}
 --- !u!114 &9139270552245254640
 MonoBehaviour:

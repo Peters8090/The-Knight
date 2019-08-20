@@ -19,7 +19,7 @@ public class Ally : Knight
     #region Component References
     Light highlight;
     #endregion
-    
+
     #region Ally Groups
 
     /// <summary>
@@ -75,12 +75,20 @@ public class Ally : Knight
                 {
                     highlight.enabled = false;
 
-                    //follow the boss
-                    if (Vector3.Distance(transform.position, GetBoss().transform.position) > 3 && GetBoss().isGrounded && rb.constraints != RigidbodyConstraints.FreezeAll)
+                    if(GetFollowTarget() == GetBoss().transform)
                     {
-                        transform.LookAt(GetBoss().transform);
-                        transform.Translate(Vector3.forward * GetBoss().rb.velocity.magnitude * Time.deltaTime);
-                        transform.localEulerAngles = Vector3.zero; //reset rotation to make the movement more natural
+                        if (Vector3.Distance(transform.position, GetFollowTarget().transform.position) > 3 && GetBoss().isGrounded && rb.constraints != RigidbodyConstraints.FreezeAll)
+                        {
+                            //follow the boss
+                            transform.LookAt(GetFollowTarget().transform);
+                            transform.Translate(Vector3.forward * GetBoss().rb.velocity.magnitude * Time.deltaTime);
+                            transform.localEulerAngles = Vector3.zero; //reset rotation to make the movement more natural
+                        }
+                    }
+                    else
+                    {
+                        transform.LookAt(GetFollowTarget().transform);
+                        transform.Translate(Vector3.forward * speed * Time.deltaTime);
                     }
                 }
                 break;
@@ -106,7 +114,17 @@ public class Ally : Knight
                 if (rb.velocity.z < speed * 0.5f)
                     bossMove.z += speed * 0.5f * Time.deltaTime;
 
-                rb.velocity += bossMove * speed;
+                if (GetFollowTarget() == transform)
+                {
+                    rb.velocity += bossMove * speed;
+                    rb.isKinematic = false;
+                    GetComponent<BoxCollider>().enabled = true;
+                }
+                else if(allies.Count > 1)
+                {
+                    rb.isKinematic = true;
+                    GetComponent<BoxCollider>().enabled = false;
+                }
                 break;
         }
     }
@@ -172,5 +190,28 @@ public class Ally : Knight
                 return knights[i];
         }
         return null;
+    }
+
+    public Transform GetFollowTarget()
+    {
+        if(GetNearestEnemyAndDist().Item1 > 5)
+            return GetBoss().transform;
+        else
+        {
+            return GetNearestEnemyAndDist().Item2.transform;
+        }
+    }
+
+    public (float, GameObject) GetNearestEnemyAndDist()
+    {
+        Dictionary<float, GameObject> enemyAndDistPairs = new Dictionary<float, GameObject>();
+        foreach (Enemy enemy in FindObjectsOfType<Enemy>())
+        {
+            enemyAndDistPairs.Add(Vector3.Distance(GetBoss().transform.position, enemy.transform.position), enemy.gameObject);
+        }
+
+        enemyAndDistPairs.OrderBy(key => key.Key);
+
+        return (enemyAndDistPairs.First().Key, enemyAndDistPairs.First().Value);
     }
 }

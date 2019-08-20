@@ -22,7 +22,7 @@ public class Enemy : Knight
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<Ally>() && !IsInvoking()) //make sure that I am not already fighting
+        if (other.GetComponent<Ally>() && other.isTrigger && !IsInvoking()) //make sure that I am not already fighting
         {
             if(other.GetComponent<Ally>().allyRank != Ally.AllyRank.Stranger) //check if other is in the ally group
                 Attack(other.GetComponent<Ally>());
