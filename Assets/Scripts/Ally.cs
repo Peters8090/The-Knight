@@ -35,9 +35,9 @@ public class Ally : Knight
     #endregion
 
     #region Swipes
-    Vector2 startPos;
-    Vector2 endPos;
-    Vector2 deltaPos;
+    Vector3 startPos;
+    Vector3 myStartPos;
+    Vector3 deltaPos;
     float minSwipe = 0.025f * Screen.width;
     #endregion
 
@@ -52,6 +52,8 @@ public class Ally : Knight
             allyRank = AllyRank.Boss;
             allies.Add(this);
         }
+
+        myStartPos = transform.position;
     }
 
     protected override void Update()
@@ -75,7 +77,7 @@ public class Ally : Knight
                 {
                     highlight.enabled = false;
 
-                    if(GetFollowTarget() == GetBoss().transform)
+                    if (GetFollowTarget() == GetBoss().transform)
                     {
                         if (Vector3.Distance(transform.position, GetFollowTarget().transform.position) > 3 && GetBoss().isGrounded && rb.constraints != RigidbodyConstraints.FreezeAll)
                         {
@@ -101,26 +103,32 @@ public class Ally : Knight
                 //the bigger group is, the speed is smaller
                 speed = maxSpeed - (allies.Count - 1) * 0.5f;
 
-                Vector2 swipe = DetectSwipes();
-
-                Vector3 bossMove = Vector3.zero;
-
-                if (swipe.x != 0)
-                    bossMove.x = swipe.x > 0 ? 1f : -1f;
-                if (swipe.y != 0)
-                    bossMove.z = swipe.y > 0 ? 0.5f : -0.2f;
-
                 //velocity.z cannot be lower than 5
                 if (rb.velocity.z < speed * 0.5f)
-                    bossMove.z += speed * 0.5f * Time.deltaTime;
+                    rb.velocity += Vector3.forward * speed * 0.5f * Time.deltaTime;
 
                 if (GetFollowTarget() == transform)
                 {
-                    rb.velocity += bossMove * speed;
+                    foreach (var touch in Input.touches)
+                    {
+                        if (touch.phase == TouchPhase.Began)
+                        {
+                            startPos = Camera.main.ScreenToWorldPoint(touch.position);
+                            myStartPos = transform.position;
+                        }
+
+                        if (touch.phase == TouchPhase.Moved)
+                        {
+                            deltaPos = Camera.main.ScreenToWorldPoint(touch.position) - startPos;
+                            Debug.Log(startPos);
+                        }
+                    }
+                    transform.position = myStartPos + deltaPos;
+
                     rb.isKinematic = false;
                     GetComponent<BoxCollider>().enabled = true;
                 }
-                else if(allies.Count > 1)
+                else if (allies.Count > 1)
                 {
                     rb.isKinematic = true;
                     GetComponent<BoxCollider>().enabled = false;
@@ -148,34 +156,6 @@ public class Ally : Knight
         allies.Remove(this);
     }
 
-    Vector2 DetectSwipes()
-    {
-        Vector2 swipeDir = Vector2.zero;
-
-        foreach (var touch in Input.touches)
-        {
-            if (touch.phase == TouchPhase.Began)
-            {
-                startPos = touch.position;
-            }
-
-            if (touch.phase == TouchPhase.Ended)
-            {
-                endPos = touch.position;
-                deltaPos = endPos - startPos;
-
-                //if the swipe's direction was up, then the swipeDir.x = 1f, if it was down, then swipeDir.y = -1f; Same thing with swipeDir.y
-
-                if (Mathf.Abs(deltaPos.x) >= minSwipe)
-                    swipeDir.x = deltaPos.x > 0 ? 1f : -1f;
-                if (Mathf.Abs(deltaPos.y) >= minSwipe)
-                    swipeDir.y = deltaPos.y > 0 ? 1f : -1f;
-            }
-        }
-
-        return swipeDir;
-    }
-
     /// <summary>
     /// Static function returning the boss GameObject
     /// </summary>
@@ -194,13 +174,15 @@ public class Ally : Knight
 
     public Transform GetFollowTarget()
     {
-        if(GetNearestEnemyAndDist().Item1 > 5)
+        if (GetNearestEnemyAndDist().Item1 > 5)
             return GetBoss().transform;
         else
         {
             return GetNearestEnemyAndDist().Item2.transform;
         }
     }
+
+    //TODO: code refactor (fights with enemy)
 
     public (float, GameObject) GetNearestEnemyAndDist()
     {
@@ -212,6 +194,9 @@ public class Ally : Knight
 
         enemyAndDistPairs.OrderBy(key => key.Key);
 
-        return (enemyAndDistPairs.First().Key, enemyAndDistPairs.First().Value);
+        if (enemyAndDistPairs.Count > 0)
+            return (enemyAndDistPairs.First().Key, enemyAndDistPairs.First().Value);
+        else
+            return (10, null);
     }
 }

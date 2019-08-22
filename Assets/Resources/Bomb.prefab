@@ -4744,7 +4744,7 @@ GameObject:
   - component: {fileID: 4552531771614654463}
   - component: {fileID: 4552531771615106879}
   m_Layer: 0
-  m_Name: ExplosionMobile
+  m_Name: Bomb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4779,7 +4779,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ac1691131a8c844dafe8b6ace6a172a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionForce: 5
+  explosionForce: 0
 --- !u!114 &4552531771614654463
 MonoBehaviour:
   m_ObjectHideFlags: 0
