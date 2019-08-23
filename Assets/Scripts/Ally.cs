@@ -15,7 +15,7 @@ public class Ally : Knight
         Boss, Member, Stranger
     }
     #endregion
-
+    
     #region Component References
     Light highlight;
     #endregion
@@ -28,6 +28,16 @@ public class Ally : Knight
     internal AllyRank allyRank = AllyRank.Stranger;
 
     #endregion
+
+    #region Fights
+
+    float dangerZone = 5f;
+    public static bool bossInDanger = false;
+    public static Ally bossGuard = null;
+    public static GameObject enemyDanger = null;
+
+    #endregion
+
     protected override void Start()
     {
         base.Start();
@@ -61,20 +71,23 @@ public class Ally : Knight
                 {
                     highlight.enabled = false;
 
-                    if (GetFollowTarget() == GetBoss().transform)
+                    //TODO: refactor the fighting code
+
+                    if(bossInDanger && enemyDanger != null && (bossGuard == null || bossGuard == this))
                     {
-                        if (Vector3.Distance(transform.position, GetFollowTarget().transform.position) > 3 && GetBoss().isGrounded && rb.constraints != RigidbodyConstraints.FreezeAll)
+                        bossGuard = this;
+                        if (Vector3.Distance(transform.position, enemyDanger.transform.position) > 0.1f)
                         {
-                            //follow the boss
-                            transform.LookAt(GetFollowTarget().transform);
-                            transform.Translate(Vector3.forward * GetBoss().rb.velocity.magnitude * Time.deltaTime);
-                            transform.localEulerAngles = Vector3.zero; //reset rotation to make the movement more natural
+                            transform.LookAt(enemyDanger.transform);
+                            transform.Translate(Vector3.forward * speed * Time.deltaTime);
                         }
                     }
-                    else if(Vector3.Distance(transform.position, GetFollowTarget().transform.position) > 1)
+
+                    else if (Vector3.Distance(transform.position, GetBoss().transform.position) > 3 && GetBoss().isGrounded && rb.constraints != RigidbodyConstraints.FreezeAll)
                     {
-                        transform.LookAt(GetFollowTarget().transform);
-                        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+                        //follow the boss
+                        transform.LookAt(GetBoss().transform);
+                        transform.Translate(Vector3.forward * GetBoss().rb.velocity.magnitude * Time.deltaTime);
                     }
                 }
                 break;
@@ -88,53 +101,46 @@ public class Ally : Knight
                 if (rb.velocity.z < speed * 0.5f)
                     rb.velocity += Vector3.forward * speed * 0.5f * Time.deltaTime;
 
-                if (GetFollowTarget() == transform)
+                foreach (var touch in Input.touches)
                 {
-                    foreach (var touch in Input.touches)
+                    if (touch.phase == TouchPhase.Moved)
                     {
-                        if (touch.phase == TouchPhase.Moved)
-                        {
-                            float leftRightfactor = Screen.width * .00004f;
-                            float fwdFactor = leftRightfactor * .5f;
-                            float backFactor = fwdFactor * .5f;
+                        float leftRightfactor = Screen.height * .000004f;
+                        float fwdFactor = leftRightfactor * .5f;
+                        float backFactor = fwdFactor * .5f;
 
-                            Vector3 rbMove = Vector3.zero;
+                        Vector3 rbMove = Vector3.zero;
 
-                            rbMove.x = Mathf.Abs(rb.velocity.x) < speed ? touch.deltaPosition.x * leftRightfactor : 0;
+                        rbMove.x = Mathf.Abs(rb.velocity.x) < speed ? touch.deltaPosition.x * leftRightfactor : 0;
 
-                            rbMove.z = touch.deltaPosition.y * (touch.deltaPosition.y > 0 ?
-                                (rb.velocity.z <= speed * 2f ? fwdFactor : 0) : //forward
-                                (rb.velocity.z >= speed * .2f ? backFactor : 0)); //back
+                        rbMove.z = touch.deltaPosition.y * (touch.deltaPosition.y > 0 ?
+                            (rb.velocity.z <= speed * 2f ? fwdFactor : 0) : //forward
+                            (rb.velocity.z >= speed * .2f ? backFactor : 0)); //back
 
-                            rb.velocity += rbMove * speed;
-                        }
+                        rb.velocity += rbMove * speed;
                     }
+                }
 
-                    Debug.Log(rb.velocity);
-                    rb.isKinematic = false;
-                    GetComponent<BoxCollider>().enabled = true;
+                bossInDanger = enemyDanger != null;
+
+                if (bossInDanger)
+                {
+                    //to prevent alone boss stopping before enemy
+                    if(bossGuard != null)
+                    {
+                        rb.isKinematic = true;
+                        GetComponent<BoxCollider>().enabled = false;
+                    }
                 }
                 else
                 {
-                    //TODO: here prevent alone boss stopping before enemy
-                    rb.isKinematic = true;
-                    GetComponent<BoxCollider>().enabled = false;
+                    bossGuard = null;
+                    rb.isKinematic = false;
+                    GetComponent<BoxCollider>().enabled = true;
                 }
                 break;
         }
-    }
-
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.GetComponent<Ally>())
-        {
-            //other is an ally, which invites knight-ally-stranger to the ally-group
-            if (other.GetComponent<Ally>().allyRank != AllyRank.Stranger && //other: ally
-                allyRank == AllyRank.Stranger) //stranger: not-an-ally
-            {
-                allyRank = AllyRank.Member;
-            }
-        }
+        transform.localEulerAngles = Vector3.zero;
     }
 
     /// <summary>
@@ -151,33 +157,5 @@ public class Ally : Knight
                 return knights[i];
         }
         return null;
-    }
-
-    public Transform GetFollowTarget()
-    {
-        if (GetNearestEnemyAndDist().Item1 > 5)
-            return GetBoss().transform;
-        else
-        {
-            return GetNearestEnemyAndDist().Item2.transform;
-        }
-    }
-
-    //TODO: code refactor (fights with enemy)
-
-    public (float, GameObject) GetNearestEnemyAndDist()
-    {
-        Dictionary<float, GameObject> enemyAndDistPairs = new Dictionary<float, GameObject>();
-        foreach (Enemy enemy in FindObjectsOfType<Enemy>())
-        {
-            enemyAndDistPairs.Add(Vector3.Distance(GetBoss().transform.position, enemy.transform.position), enemy.gameObject);
-        }
-
-        enemyAndDistPairs.OrderBy(key => key.Key);
-
-        if (enemyAndDistPairs.Count > 0)
-            return (enemyAndDistPairs.First().Key, enemyAndDistPairs.First().Value);
-        else
-            return (10, null);
     }
 }

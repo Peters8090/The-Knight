@@ -20,12 +20,12 @@ public class Enemy : Knight
         Instantiate(Resources.Load("Bomb"), transform.position, Quaternion.identity);
     }
 
-    void OnTriggerEnter(Collider other)
+    void OnCollisionEnter(Collision collision)
     {
-        if (other.GetComponent<Ally>() && other.isTrigger && !IsInvoking()) //make sure that I am not already fighting
+        if (collision.collider.GetComponent<Ally>() && !IsInvoking()) //make sure that I am not already fighting
         {
-            if(other.GetComponent<Ally>().allyRank != Ally.AllyRank.Stranger) //check if other is in the ally group
-                Attack(other.GetComponent<Ally>());
+            if (collision.collider.GetComponent<Ally>().allyRank != Ally.AllyRank.Stranger) //check if other is in the ally group
+                Attack(collision.collider.GetComponent<Ally>());
         }
     }
 }

@@ -71,8 +71,8 @@ public class Knight : MonoBehaviour
     /// </summary>
     protected void BeingHit()
     {
-        animator.Play("Hit");
         rb.constraints = RigidbodyConstraints.FreezeAll;
+        animator.Play("Hit");
         Invoke("Die", 1f);
     }
     
