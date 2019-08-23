@@ -10,8 +10,7 @@ public class Knight : MonoBehaviour
     #endregion
     
     #region Physics
-    protected float speed;
-    protected float maxSpeed = 10f;
+    protected float speed = 10f;
     protected bool isGrounded = true;
 
     /// <summary>
@@ -28,7 +27,6 @@ public class Knight : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        speed = maxSpeed;
     }
 
     protected virtual void Update()

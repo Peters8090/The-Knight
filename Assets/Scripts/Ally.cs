@@ -27,20 +27,7 @@ public class Ally : Knight
     /// </summary>
     internal AllyRank allyRank = AllyRank.Stranger;
 
-    /// <summary>
-    /// List of all allies
-    /// </summary>
-    public static List<Ally> allies = new List<Ally>();
-
     #endregion
-
-    #region Swipes
-    Vector3 startPos;
-    Vector3 myStartPos;
-    Vector3 deltaPos;
-    float minSwipe = 0.025f * Screen.width;
-    #endregion
-
     protected override void Start()
     {
         base.Start();
@@ -50,10 +37,7 @@ public class Ally : Knight
         if (name == "Ally (1)")
         {
             allyRank = AllyRank.Boss;
-            allies.Add(this);
         }
-
-        myStartPos = transform.position;
     }
 
     protected override void Update()
@@ -87,7 +71,7 @@ public class Ally : Knight
                             transform.localEulerAngles = Vector3.zero; //reset rotation to make the movement more natural
                         }
                     }
-                    else
+                    else if(Vector3.Distance(transform.position, GetFollowTarget().transform.position) > 1)
                     {
                         transform.LookAt(GetFollowTarget().transform);
                         transform.Translate(Vector3.forward * speed * Time.deltaTime);
@@ -100,9 +84,6 @@ public class Ally : Knight
                 highlight.enabled = true;
                 highlight.color = Color.red;
 
-                //the bigger group is, the speed is smaller
-                speed = maxSpeed - (allies.Count - 1) * 0.5f;
-
                 //velocity.z cannot be lower than 5
                 if (rb.velocity.z < speed * 0.5f)
                     rb.velocity += Vector3.forward * speed * 0.5f * Time.deltaTime;
@@ -111,25 +92,31 @@ public class Ally : Knight
                 {
                     foreach (var touch in Input.touches)
                     {
-                        if (touch.phase == TouchPhase.Began)
-                        {
-                            startPos = Camera.main.ScreenToWorldPoint(touch.position);
-                            myStartPos = transform.position;
-                        }
-
                         if (touch.phase == TouchPhase.Moved)
                         {
-                            deltaPos = Camera.main.ScreenToWorldPoint(touch.position) - startPos;
-                            Debug.Log(startPos);
+                            float leftRightfactor = Screen.width * .00004f;
+                            float fwdFactor = leftRightfactor * .5f;
+                            float backFactor = fwdFactor * .5f;
+
+                            Vector3 rbMove = Vector3.zero;
+
+                            rbMove.x = Mathf.Abs(rb.velocity.x) < speed ? touch.deltaPosition.x * leftRightfactor : 0;
+
+                            rbMove.z = touch.deltaPosition.y * (touch.deltaPosition.y > 0 ?
+                                (rb.velocity.z <= speed * 2f ? fwdFactor : 0) : //forward
+                                (rb.velocity.z >= speed * .2f ? backFactor : 0)); //back
+
+                            rb.velocity += rbMove * speed;
                         }
                     }
-                    transform.position = myStartPos + deltaPos;
 
+                    Debug.Log(rb.velocity);
                     rb.isKinematic = false;
                     GetComponent<BoxCollider>().enabled = true;
                 }
-                else if (allies.Count > 1)
+                else
                 {
+                    //TODO: here prevent alone boss stopping before enemy
                     rb.isKinematic = true;
                     GetComponent<BoxCollider>().enabled = false;
                 }
@@ -146,14 +133,8 @@ public class Ally : Knight
                 allyRank == AllyRank.Stranger) //stranger: not-an-ally
             {
                 allyRank = AllyRank.Member;
-                allies.Add(this);
             }
         }
-    }
-
-    void OnDestroy()
-    {
-        allies.Remove(this);
     }
 
     /// <summary>
