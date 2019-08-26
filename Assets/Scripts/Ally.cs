@@ -24,11 +24,12 @@ public class Ally : Knight
 
     Vector3 lastMousePos;
     
-    float constFwdFrc = 5f;
+    float minZSpeed = 7f;
     
-    public float moveSensitivity = 0.5f;
+    public float sensitivity = 0.5f;
     public float clampDelta = 5f;
     public float velDivider = 15f;
+    public float speedBoostOnTouch = 0.4f;
 
     #endregion
 
@@ -91,7 +92,7 @@ public class Ally : Knight
                         if (Vector3.Distance(transform.position, enemyDanger.transform.position) > 0.1f)
                         {
                             transform.LookAt(enemyDanger.transform);
-                            transform.Translate(Vector3.forward * constFwdFrc * Time.deltaTime);
+                            transform.Translate(Vector3.forward * minZSpeed * Time.deltaTime);
                         }
                     }
 
@@ -116,7 +117,6 @@ public class Ally : Knight
                     //to prevent alone boss stopping before enemy
                     if(bossGuard != null)
                     {
-                        rb.velocity -= Time.deltaTime * rb.velocity * 2;
                         GetComponent<BoxCollider>().enabled = false;
                     }
                 }
@@ -124,10 +124,6 @@ public class Ally : Knight
                 {
                     bossGuard = null;
                     GetComponent<BoxCollider>().enabled = true;
-
-                    //velocity.z cannot be lower than 5
-                    if (rb.velocity.z < constFwdFrc)
-                        rb.velocity += Vector3.forward * constFwdFrc * Time.deltaTime;
                     
                     if (Input.GetMouseButtonDown(0))
                     {
@@ -138,20 +134,25 @@ public class Ally : Knight
                         Vector3 deltaMousePos = -(lastMousePos - Input.mousePosition);
                         lastMousePos = Input.mousePosition;
                         deltaMousePos = Vector3.ClampMagnitude(deltaMousePos, clampDelta);
-                        
-                        rb.AddForce(
-                            Vector3.forward * 0.2f +
-                            new Vector3(deltaMousePos.x, 0, deltaMousePos.y) * moveSensitivity - rb.velocity / velDivider
-                            , ForceMode.VelocityChange);
+
+                        rb.velocity += new Vector3(deltaMousePos.x, 0, deltaMousePos.y) * sensitivity - rb.velocity / velDivider;
+                        rb.velocity += Vector3.forward * speedBoostOnTouch;
                     }
+
+                    //player can't move backwards (he can slow down)
+                    if (rb.velocity.z < 0)
+                        rb.velocity += Vector3.forward * Mathf.Abs(rb.velocity.z);
+
+                    //const forward force
+                    if (rb.velocity.z < minZSpeed)
+                        rb.velocity += Vector3.forward * minZSpeed * Time.deltaTime;
                 }
                 break;
         }
         float velZ;
-        velZ = rb.velocity.z / (constFwdFrc * 2);
+        velZ = rb.velocity.z / (minZSpeed * 1.5f);
         //set animator VelZ, but it can't be greater than 1
         animator.SetFloat("VelZ", Mathf.Abs(velZ) > 1 ? 1 : velZ);
-
         transform.localEulerAngles = Vector3.zero;
     }
 

@@ -5,7 +5,7 @@ using UnityEngine;
 public class MainCamera : MonoBehaviour
 {
     Vector3 offset;
-    float smoothSpeed = 0.05f;
+    float smoothSpeed = 0.1f;
 
     void Start()
     {
