@@ -10,7 +10,6 @@ public class Knight : MonoBehaviour
     #endregion
     
     #region Physics
-    protected float speed = 10f;
     protected bool isGrounded = true;
 
     /// <summary>
@@ -44,10 +43,6 @@ public class Knight : MonoBehaviour
             hp -= fallDamage * Time.deltaTime;
         }
         
-        float velZ;
-        velZ = rb.velocity.z / speed;
-        //set animator VelZ, but it can't be greater than 1
-        animator.SetFloat("VelZ", Mathf.Abs(velZ) > 1 ? 1 : velZ);
 
         if (hp <= 0f)
             Destroy(gameObject);

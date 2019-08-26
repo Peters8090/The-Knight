@@ -20,6 +20,18 @@ public class Ally : Knight
     Light highlight;
     #endregion
 
+    #region Physics
+
+    Vector3 lastMousePos;
+    
+    float constFwdFrc = 5f;
+    
+    public float moveSensitivity = 0.5f;
+    public float clampDelta = 5f;
+    public float velDivider = 15f;
+
+    #endregion
+
     #region Ally Groups
 
     /// <summary>
@@ -79,7 +91,7 @@ public class Ally : Knight
                         if (Vector3.Distance(transform.position, enemyDanger.transform.position) > 0.1f)
                         {
                             transform.LookAt(enemyDanger.transform);
-                            transform.Translate(Vector3.forward * speed * Time.deltaTime);
+                            transform.Translate(Vector3.forward * constFwdFrc * Time.deltaTime);
                         }
                     }
 
@@ -97,30 +109,6 @@ public class Ally : Knight
                 highlight.enabled = true;
                 highlight.color = Color.red;
 
-                //velocity.z cannot be lower than 5
-                if (rb.velocity.z < speed * 0.5f)
-                    rb.velocity += Vector3.forward * speed * 0.5f * Time.deltaTime;
-
-                foreach (var touch in Input.touches)
-                {
-                    if (touch.phase == TouchPhase.Moved)
-                    {
-                        float leftRightfactor = Screen.height * .000004f;
-                        float fwdFactor = leftRightfactor * .5f;
-                        float backFactor = fwdFactor * .5f;
-
-                        Vector3 rbMove = Vector3.zero;
-
-                        rbMove.x = Mathf.Abs(rb.velocity.x) < speed ? touch.deltaPosition.x * leftRightfactor : 0;
-
-                        rbMove.z = touch.deltaPosition.y * (touch.deltaPosition.y > 0 ?
-                            (rb.velocity.z <= speed * 2f ? fwdFactor : 0) : //forward
-                            (rb.velocity.z >= speed * .2f ? backFactor : 0)); //back
-
-                        rb.velocity += rbMove * speed;
-                    }
-                }
-
                 bossInDanger = enemyDanger != null;
 
                 if (bossInDanger)
@@ -128,18 +116,42 @@ public class Ally : Knight
                     //to prevent alone boss stopping before enemy
                     if(bossGuard != null)
                     {
-                        rb.isKinematic = true;
+                        rb.velocity -= Time.deltaTime * rb.velocity * 2;
                         GetComponent<BoxCollider>().enabled = false;
                     }
                 }
                 else
                 {
                     bossGuard = null;
-                    rb.isKinematic = false;
                     GetComponent<BoxCollider>().enabled = true;
+
+                    //velocity.z cannot be lower than 5
+                    if (rb.velocity.z < constFwdFrc)
+                        rb.velocity += Vector3.forward * constFwdFrc * Time.deltaTime;
+                    
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        lastMousePos = Input.mousePosition;
+                    }
+                    else if (Input.GetMouseButton(0))
+                    {
+                        Vector3 deltaMousePos = -(lastMousePos - Input.mousePosition);
+                        lastMousePos = Input.mousePosition;
+                        deltaMousePos = Vector3.ClampMagnitude(deltaMousePos, clampDelta);
+                        
+                        rb.AddForce(
+                            Vector3.forward * 0.2f +
+                            new Vector3(deltaMousePos.x, 0, deltaMousePos.y) * moveSensitivity - rb.velocity / velDivider
+                            , ForceMode.VelocityChange);
+                    }
                 }
                 break;
         }
+        float velZ;
+        velZ = rb.velocity.z / (constFwdFrc * 2);
+        //set animator VelZ, but it can't be greater than 1
+        animator.SetFloat("VelZ", Mathf.Abs(velZ) > 1 ? 1 : velZ);
+
         transform.localEulerAngles = Vector3.zero;
     }
 
