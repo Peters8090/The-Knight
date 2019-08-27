@@ -26,10 +26,10 @@ public class Ally : Knight
     
     float minZSpeed = 7f;
     
-    public float sensitivity = 0.5f;
-    public float clampDelta = 5f;
-    public float velDivider = 15f;
-    public float speedBoostOnTouch = 0.4f;
+    float sensitivity = 0.3f;
+    float clampDelta = 15f;
+    float velDivider = 20f;
+    float speedBoostOnTouch = 0.5f;
 
     #endregion
 
@@ -92,7 +92,8 @@ public class Ally : Knight
                         if (Vector3.Distance(transform.position, enemyDanger.transform.position) > 0.1f)
                         {
                             transform.LookAt(enemyDanger.transform);
-                            transform.Translate(Vector3.forward * minZSpeed * Time.deltaTime);
+                            //transform.position = Vector3.Lerp(transform.position, enemyDanger.transform.position - Vector3.forward, 0.05f);
+                            transform.Translate(Vector3.forward * minZSpeed * 3 * Time.deltaTime);
                         }
                     }
 
@@ -112,41 +113,30 @@ public class Ally : Knight
 
                 bossInDanger = enemyDanger != null;
 
-                if (bossInDanger)
+                GetComponent<BoxCollider>().enabled = !bossInDanger || bossGuard == null;
+
+                if (Input.GetMouseButtonDown(0))
                 {
-                    //to prevent alone boss stopping before enemy
-                    if(bossGuard != null)
-                    {
-                        GetComponent<BoxCollider>().enabled = false;
-                    }
+                    lastMousePos = Input.mousePosition;
                 }
-                else
+                else if (Input.GetMouseButton(0))
                 {
-                    bossGuard = null;
-                    GetComponent<BoxCollider>().enabled = true;
-                    
-                    if (Input.GetMouseButtonDown(0))
-                    {
-                        lastMousePos = Input.mousePosition;
-                    }
-                    else if (Input.GetMouseButton(0))
-                    {
-                        Vector3 deltaMousePos = -(lastMousePos - Input.mousePosition);
-                        lastMousePos = Input.mousePosition;
-                        deltaMousePos = Vector3.ClampMagnitude(deltaMousePos, clampDelta);
+                    Vector3 deltaMousePos = -(lastMousePos - Input.mousePosition);
+                    lastMousePos = Input.mousePosition;
+                    deltaMousePos = Vector3.ClampMagnitude(deltaMousePos, clampDelta);
 
-                        rb.velocity += new Vector3(deltaMousePos.x, 0, deltaMousePos.y) * sensitivity - rb.velocity / velDivider;
-                        rb.velocity += Vector3.forward * speedBoostOnTouch;
-                    }
-
-                    //player can't move backwards (he can slow down)
-                    if (rb.velocity.z < 0)
-                        rb.velocity += Vector3.forward * Mathf.Abs(rb.velocity.z);
-
-                    //const forward force
-                    if (rb.velocity.z < minZSpeed)
-                        rb.velocity += Vector3.forward * minZSpeed * Time.deltaTime;
+                    rb.velocity += Vector3.forward * speedBoostOnTouch;
+                    rb.velocity += new Vector3(deltaMousePos.x, 0, deltaMousePos.y) * sensitivity - rb.velocity / velDivider;
                 }
+
+                //player can't move backwards (he can slow down)
+                if (rb.velocity.z < 0)
+                    rb.velocity += Vector3.forward * Mathf.Abs(rb.velocity.z);
+
+                //constant forward force
+                if (rb.velocity.z < minZSpeed)
+                    rb.velocity += Vector3.forward * minZSpeed * Time.deltaTime;
+
                 break;
         }
         float velZ;
