@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class AllyTriggers : MonoBehaviour
 {
@@ -23,7 +24,12 @@ public class AllyTriggers : MonoBehaviour
             case "Trigger2":
                 if(other.tag == "Enemy")
                 {
-                    Ally.enemyDanger = other.gameObject;
+                    if (Ally.Allies.Where(ally => ally.attackTarget == other.GetComponent<Enemy>()).Count() == 0 //if no one is already attacking this enemy
+                        && Ally.Allies.Where(ally => ally.allyRank == Ally.AllyRank.Member && ally.attackTarget == null).Count() > 0) //and if the list of available allies isn't empty
+                    {
+                        //delegate an available ally to attack the enemy
+                        Ally.Allies.Where(ally => ally.allyRank == Ally.AllyRank.Member && ally.attackTarget == null).ToArray()[0].attackTarget = other.GetComponent<Enemy>();
+                    }
                 }
                 break;
         }

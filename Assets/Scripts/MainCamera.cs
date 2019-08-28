@@ -14,9 +14,9 @@ public class MainCamera : MonoBehaviour
 
     void Update()
     {
-        if(Ally.GetBoss() != null)
+        if(Ally.Boss != null)
         {
-            Vector3 targetPos = Ally.GetBoss().transform.position + offset;
+            Vector3 targetPos = Ally.Boss.transform.position + offset;
             transform.position = Vector3.Lerp(transform.position, targetPos, smoothSpeed);
         }
     }

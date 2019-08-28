@@ -4,13 +4,15 @@ using UnityEngine;
 
 public class Knight : MonoBehaviour
 {
-    #region Component References
+    #region References
     protected Rigidbody rb;
     protected Animator animator;
     #endregion
     
     #region Physics
     protected bool isGrounded = true;
+
+    protected bool movementLocked = false;
 
     /// <summary>
     /// Damage suffered every second while not grounded
@@ -42,7 +44,8 @@ public class Knight : MonoBehaviour
         {
             hp -= fallDamage * Time.deltaTime;
         }
-        
+
+        rb.isKinematic = movementLocked;
 
         if (hp <= 0f)
             Destroy(gameObject);
@@ -66,7 +69,7 @@ public class Knight : MonoBehaviour
     /// </summary>
     protected void BeingHit()
     {
-        rb.constraints = RigidbodyConstraints.FreezeAll;
+        movementLocked = true;
         animator.Play("Hit");
         Invoke("Die", 1f);
     }
