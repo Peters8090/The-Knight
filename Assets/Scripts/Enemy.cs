@@ -17,7 +17,7 @@ public class Enemy : Knight
     protected override void Die()
     {
         base.Die();
-        Instantiate(Resources.Load("Bomb"), transform.position, Quaternion.identity);
+        Instantiate(Resources.Load("Prefabs/Bomb"), transform.position, Quaternion.identity);
     }
 
     void OnCollisionEnter(Collision collision)

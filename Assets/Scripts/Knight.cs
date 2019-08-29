@@ -17,7 +17,7 @@ public class Knight : MonoBehaviour
     /// <summary>
     /// Damage suffered every second while not grounded
     /// </summary>
-    protected float fallDamage = 50f;
+    protected float fallDamage = 80f;
     #endregion
 
     #region Stats

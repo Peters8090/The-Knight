@@ -7,8 +7,6 @@ using UnityEngine;
 public class Ally : Knight
 {
     //TODO: Classes AllyStranger, AllyMember, AllyBoss inheriting after Ally
-    //TODO: Swiping variables compatibility with various resolutions (Boss -> Movement)
-
     #region Enums' Definitions
     /// <summary>
     /// Members follow the Boss, Stranger isn't a member of Allies
@@ -73,13 +71,14 @@ public class Ally : Knight
     #endregion
 
     #region Boss
-
+     //* Screen.height / 1280;
+     //* 1280 / Screen.height;
     #region Movement
     Vector3 lastMousePos = Vector3.zero;
-    float sensitivity = 0.3f;
-    float maxMoveLength = 15f;
-    float slide = 0.05f;
-    float speedBoostOnTouch = 0.5f;
+    float sensitivity = 0.3f * 1280 / Screen.height;
+    float maxMoveLength = 15f * Screen.height / 1280;
+    float slide = 0.05f * Screen.height / 1280;
+    float speedBoostOnTouch = 0.5f * Screen.height / 1280;
     #endregion
 
     #endregion
@@ -235,7 +234,7 @@ public class Ally : Knight
                     if (Vector3.Distance(transform.position, attackTarget.transform.position) > maxDistToEnemy)
                     {
                         transform.LookAt(attackTarget.transform);
-                        transform.Translate(Vector3.forward * zSpeed * Time.deltaTime);
+                        transform.Translate(Vector3.forward * zSpeed / 1.3f * Time.deltaTime);
                     }
                 }
                 catch (Exception e) { }
