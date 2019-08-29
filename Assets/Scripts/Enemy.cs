@@ -9,9 +9,9 @@ public class Enemy : Knight
         base.Start();
     }
     
-    protected override void Update()
+    protected override void LateUpdate()
     {
-        base.Update();
+        base.LateUpdate();
     }
     
     protected override void Die()

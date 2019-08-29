@@ -31,7 +31,7 @@ BlendTree:
   m_Name: Movement
   m_Childs:
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: a4b1e30245c74ff4a8f87596a84db0dc, type: 3}
+    m_Motion: {fileID: 7400000, guid: cb8f52dd54ac408482177375e6125a68, type: 3}
     m_Threshold: 0
     m_Position: {x: 0, y: 0}
     m_TimeScale: 1
@@ -39,7 +39,7 @@ BlendTree:
     m_DirectBlendParameter: Blend
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: 7400004, guid: a4b1e30245c74ff4a8f87596a84db0dc, type: 3}
+    m_Motion: {fileID: 7400004, guid: cb8f52dd54ac408482177375e6125a68, type: 3}
     m_Threshold: 0.25
     m_Position: {x: 0, y: 0.5}
     m_TimeScale: 1
@@ -47,7 +47,7 @@ BlendTree:
     m_DirectBlendParameter: Blend
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: 7400004, guid: a4b1e30245c74ff4a8f87596a84db0dc, type: 3}
+    m_Motion: {fileID: 7400004, guid: cb8f52dd54ac408482177375e6125a68, type: 3}
     m_Threshold: 0.5
     m_Position: {x: 0, y: -0.5}
     m_TimeScale: -1
@@ -55,7 +55,7 @@ BlendTree:
     m_DirectBlendParameter: Blend
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: 7400006, guid: a4b1e30245c74ff4a8f87596a84db0dc, type: 3}
+    m_Motion: {fileID: 7400006, guid: cb8f52dd54ac408482177375e6125a68, type: 3}
     m_Threshold: 0.75
     m_Position: {x: 0, y: 1}
     m_TimeScale: 1
@@ -63,7 +63,7 @@ BlendTree:
     m_DirectBlendParameter: Blend
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: 7400006, guid: a4b1e30245c74ff4a8f87596a84db0dc, type: 3}
+    m_Motion: {fileID: 7400006, guid: cb8f52dd54ac408482177375e6125a68, type: 3}
     m_Threshold: 1
     m_Position: {x: 0, y: -1}
     m_TimeScale: -1
@@ -124,7 +124,7 @@ AnimatorController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Ally
+  m_Name: AllyBoss
   serializedVersion: 5
   m_AnimatorParameters:
   - m_Name: VelX
@@ -132,13 +132,13 @@ AnimatorController:
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: VelZ
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Base Layer
@@ -166,7 +166,7 @@ AnimatorStateMachine:
     m_Position: {x: 400, y: 40, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 6433226849028424823}
-    m_Position: {x: 520, y: 180, z: 0}
+    m_Position: {x: 560, y: 320, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions:
   - {fileID: 5413567969899884907}
@@ -237,13 +237,13 @@ AnimatorState:
   m_StateMachineBehaviours: []
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
-  m_WriteDefaultValues: 1
+  m_WriteDefaultValues: 0
   m_Mirror: 0
   m_SpeedParameterActive: 0
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400012, guid: a4b1e30245c74ff4a8f87596a84db0dc, type: 3}
+  m_Motion: {fileID: 7400012, guid: cb8f52dd54ac408482177375e6125a68, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 

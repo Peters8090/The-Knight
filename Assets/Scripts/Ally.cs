@@ -15,14 +15,14 @@ public class Ally : Knight
     /// </summary>
     public enum AllyRank
     {
-        Boss, Member, Stranger
+        Boss, Member, Stranger, Kicked_Out
     }
     #endregion
-    
+
     #region Component References
     Light highlight;
     #endregion
-    
+
     #region Ally Groups
 
     /// <summary>
@@ -87,12 +87,16 @@ public class Ally : Knight
     #region Member
 
     #region Movement
-    float minDistFromBoss = 6f;
+
+    protected Vector3 offsetPos = Vector3.zero;
+
     #endregion
 
     #region Fighting
 
+    [HideInInspector]
     public Enemy attackTarget = null;
+
     float maxDistToEnemy = 0.5f;
 
     #endregion
@@ -100,86 +104,50 @@ public class Ally : Knight
     #endregion
 
     protected override void Start()
-    {        
+    {
         base.Start();
 
         highlight = transform.Find("Point Light").GetComponent<Light>();
 
-        if (name == "Ally (1)")
+        if (name == "AllyBoss")
         {
             allyRank = AllyRank.Boss;
         }
     }
 
-    protected override void Update()
+    protected override void LateUpdate()
     {
-        base.Update();
+        if (GameControlScript.gameOver)
+            return;
+
+        base.LateUpdate();
+
         switch (allyRank)
         {
             case AllyRank.Stranger:
                 highlight.enabled = true;
                 highlight.color = Color.yellow;
+
+                animator.SetFloat("VelZ", 0);
                 break;
 
 
             case AllyRank.Member:
-                //check if the boss is alive
-                if (Boss == null)
+                animator.SetFloat("VelZ", Boss.animator.GetFloat("VelZ"));
+
+                if (attackTarget != null)
                 {
-                    //the boss is dead, so I become him (first come, first served)
-                    allyRank = AllyRank.Boss;
+                    allyRank = AllyRank.Kicked_Out;
+                    break;
                 }
-                else
+
+                highlight.enabled = false;
+
+                if (!movementLocked)
                 {
-                    highlight.enabled = false;
-
-                    if(!movementLocked)
+                    if (Boss.isGrounded && isGrounded)
                     {
-                        //if this ally doesn't have to attack any enemies, do stuff right below
-                        if (attackTarget == null)
-                        {
-                            //ally won't follow the boss, when he is about to die with no chance to rescue him (boss is falling)
-                            if (Boss.isGrounded)
-                            {
-                                /*
-                                if (Vector3.Distance(transform.position, GetBoss().transform.position) > 3)
-                                {
-                                    transform.LookAt(GetBoss().transform);
-                                    transform.Translate(Vector3.forward * GetBoss().rb.velocity.magnitude * Time.deltaTime);
-                                }*/
-
-                                //boss follow
-                                transform.LookAt(Boss.transform);
-                                transform.Translate(Vector3.forward * Boss.rb.velocity.magnitude * Time.deltaTime);
-
-                                //members have to be in front of the boss to protect him from enemies
-                                if (transform.position.z < Boss.transform.position.z + minDistFromBoss) //true if this ally is behind the boss
-                                {
-                                    //reset the rotation because of the transform.Translate
-                                    transform.localEulerAngles = Vector3.zero;
-
-                                    //minimum making up the Z position speed
-                                    float speed = zSpeed;
-
-                                    //if the boss is moving faster
-                                    if (Boss.rb.velocity.z > speed)
-                                        speed = Boss.rb.velocity.z * 2; //let's be two times faster then he is
-                                    
-                                    //finally move the ally and make up the Z pos
-                                    transform.Translate(Vector3.forward * speed * Time.deltaTime);
-
-                                }
-                            }
-                        }
-                        else
-                        {
-                            //head as fast to the enemy and kill him
-                            if(Vector3.Distance(transform.position, attackTarget.transform.position) > maxDistToEnemy)
-                            {
-                                transform.LookAt(attackTarget.transform);
-                                transform.Translate(Vector3.forward * zSpeed * Time.deltaTime);
-                            }
-                        }
+                        transform.position = Vector3.Lerp(transform.position, Boss.transform.position + offsetPos, 0.2f);
                     }
                 }
                 break;
@@ -189,7 +157,40 @@ public class Ally : Knight
                 highlight.enabled = true;
                 highlight.color = Color.red;
 
-                if(!movementLocked)
+                animator.SetFloat("VelZ", Mathf.Abs(rb.velocity.z / (zSpeed / 1.3f)));
+                if (animator.GetFloat("VelZ") > 1)
+                    animator.SetFloat("VelZ", 1);
+
+                #region Members' pos
+                Ally[] members = Allies.Where(allyClass => allyClass.allyRank == AllyRank.Member).ToArray();
+                float angle = 90; // Initial angle
+                float increment = 30;
+                float radius = 3f;
+                float factor;
+
+                if(members.Count() % 2 == 1)
+                {
+                    factor = (members.Count() - 1) / 2;
+                }
+                else
+                {
+                    factor = members.Count() / 2 - 0.5f;
+                }
+
+                angle -= factor * increment;
+
+                foreach (Ally ally in members)
+                {
+                    float x = Mathf.Cos(angle * Mathf.Deg2Rad) * radius;
+                    float y = Mathf.Sin(angle * Mathf.Deg2Rad) * radius;
+
+                    ally.offsetPos = new Vector3(x, 0, y);
+
+                    angle += increment;
+                }
+                #endregion
+
+                if (!movementLocked)
                 {
                     //swipes work both on the mobile and pc
                     if (Input.GetMouseButtonDown(0))
@@ -221,11 +222,28 @@ public class Ally : Knight
                 }
 
                 break;
-        }
 
-        float velZ = rb.velocity.z / (zSpeed / 1.3f);
-        //set animator VelZ value, but it cannot be greater than 1 (animation would be too fast)
-        animator.SetFloat("VelZ", Mathf.Abs(velZ) > 1 ? 1 : velZ);
+
+            case AllyRank.Kicked_Out:
+
+                if (attackTarget == null)
+                    allyRank = AllyRank.Member;
+
+                try
+                {
+                    //head asap to the enemy and kill him
+                    if (Vector3.Distance(transform.position, attackTarget.transform.position) > maxDistToEnemy)
+                    {
+                        transform.LookAt(attackTarget.transform);
+                        transform.Translate(Vector3.forward * zSpeed * Time.deltaTime);
+                    }
+                }
+                catch (Exception e) { }
+
+                break;
+        }
+        
+
         transform.localEulerAngles = Vector3.zero;
     }
 }

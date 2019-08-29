@@ -30,7 +30,7 @@ public class Knight : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
-    protected virtual void Update()
+    protected virtual void LateUpdate()
     {
         isGrounded = GroundCheck();
 
