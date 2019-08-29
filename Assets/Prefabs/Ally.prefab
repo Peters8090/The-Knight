@@ -85,7 +85,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 1.2
+  m_Radius: 3
   m_Center: {x: 0, y: 0.6, z: 0}
 --- !u!1 &4797698574756772114
 GameObject:
@@ -126,8 +126,9 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4797698574756772114}
   m_Enabled: 1
-  serializedVersion: 9
+  serializedVersion: 10
   m_Type: 2
+  m_Shape: 0
   m_Color: {r: 1, g: 0, b: 0.14901961, a: 1}
   m_Intensity: 200
   m_Range: 1.5
@@ -380,6 +381,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b46329b98f16434d9c4f4a654da164e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackTarget: {fileID: 0}
 --- !u!54 &9139270552245254641
 Rigidbody:
   m_ObjectHideFlags: 0
