@@ -66,13 +66,17 @@ public class Ally : Knight
 
     float zSpeed = 15f;
 
+    //arc params
+    float increment = 30;
+    float radius = 3f;
+
     #endregion
 
     #endregion
 
     #region Boss
-     //* Screen.height / 1280;
-     //* 1280 / Screen.height;
+    //* Screen.height / 1280;
+    //* 1280 / Screen.height;
     #region Movement
     Vector3 lastMousePos = Vector3.zero;
     float sensitivity = 0.3f * 1280 / Screen.height;
@@ -140,6 +144,12 @@ public class Ally : Knight
                     break;
                 }
 
+                if(Vector3.Distance(transform.position, Boss.transform.position) > radius * 2)
+                {
+                    allyRank = AllyRank.Stranger;
+                    break;
+                }
+
                 highlight.enabled = false;
 
                 if (!movementLocked)
@@ -163,8 +173,6 @@ public class Ally : Knight
                 #region Members' pos
                 Ally[] members = Allies.Where(allyClass => allyClass.allyRank == AllyRank.Member).ToArray();
                 float angle = 90; // Initial angle
-                float increment = 30;
-                float radius = 3f;
                 float factor;
 
                 if(members.Count() % 2 == 1)

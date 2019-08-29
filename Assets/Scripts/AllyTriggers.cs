@@ -10,7 +10,7 @@ public class AllyTriggers : MonoBehaviour
         switch(name)
         {
             case "Trigger1":
-                if (other.tag == "Player")
+                if (other.tag == "Ally")
                 {
                     //other is an ally, which invites knight-ally-stranger to the ally-group
                     if (other.GetComponent<Ally>().allyRank != Ally.AllyRank.Stranger && //other: ally

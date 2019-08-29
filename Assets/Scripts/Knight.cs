@@ -21,7 +21,8 @@ public class Knight : MonoBehaviour
     #endregion
 
     #region Stats
-    protected float hp = 100f;
+    [HideInInspector]
+    public float hp = 100f;
     #endregion
 
     protected virtual void Start()
