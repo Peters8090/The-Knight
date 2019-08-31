@@ -24,7 +24,7 @@ public class Knight : MonoBehaviour
     [HideInInspector]
     public float hp = 100f;
     #endregion
-
+    
     protected virtual void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -86,7 +86,7 @@ public class Knight : MonoBehaviour
 
         foreach (var collider in hitColliders)
         {
-            if (collider.tag == "Terrain")
+            if (collider.tag == "Scenery")
                 return true;
         }
         return false;

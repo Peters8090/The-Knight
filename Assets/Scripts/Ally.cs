@@ -156,11 +156,24 @@ public class Ally : Knight
                 {
                     if (Boss.isGrounded && isGrounded)
                     {
-                        transform.position = Vector3.Lerp(transform.position, Boss.transform.position + offsetPos, 0.2f);
+                        Vector3 desiredPos = Vector3.Lerp(transform.position, Boss.transform.position + offsetPos, 0.2f);
+
+                        //to prevent falling out of the scene
+                        bool collidesWithScenery = false;
+                        foreach (var collider in Physics.OverlapSphere(desiredPos, 0.01f))
+                        {
+                            if (collider.tag == "Scenery")
+                            {
+                                collidesWithScenery = true;
+                                break;
+                            }
+                        }
+
+                        if(!collidesWithScenery)
+                            transform.position = desiredPos;
                     }
                 }
                 break;
-
 
             case AllyRank.Boss:
                 highlight.enabled = true;
