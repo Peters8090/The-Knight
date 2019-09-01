@@ -10,27 +10,28 @@ public class AllyTriggers : MonoBehaviour
         switch(name)
         {
             case "Trigger1":
-                if (other.tag == "Ally")
+                if (transform.parent.GetComponent<AllyStranger>())
                 {
-                    //other is an ally, which invites knight-ally-stranger to the ally-group
-                    if (other.GetComponent<Ally>().allyRank != Ally.AllyRank.Stranger && //other: ally
-                        transform.parent.GetComponent<Ally>().allyRank == Ally.AllyRank.Stranger) //stranger: not-an-ally
+                    Debug.Log(other.name);
+                    //other is an ally member/boss, which invites (me) Ally Stranger to the ally group
+                    if (other.GetComponent<AllyMember>() || other.GetComponent<AllyBoss>())
                     {
-                        transform.parent.GetComponent<Ally>().allyRank = Ally.AllyRank.Member;
+                        transform.parent.GetComponent<Ally>().ChangeAllyRankTo<AllyMember>();
                     }
                 }
                 break;
 
             case "Trigger2":
-                if (other.tag == "Enemy")
+                if (other.GetComponent<Enemy>())
                 {
                     //check if other isn't already attacked by an ally
-                    if (Ally.Allies.Where(ally => ally.attackTarget == other.GetComponent<Enemy>()).Count() == 0)
+                    if (AllyDelegated.Delegated.Where(ally => ally.attackTarget == other.GetComponent<Enemy>()).Count() == 0)
                     {
                         //delegate the parent ally (if available) to attack the enemy
-                        if (transform.parent.GetComponent<Ally>().allyRank == Ally.AllyRank.Member && transform.parent.GetComponent<Ally>().attackTarget == null)
+                        if (!transform.parent.GetComponent<AllyDelegated>())
                         {
-                            transform.parent.GetComponent<Ally>().attackTarget = other.GetComponent<Enemy>();
+                            transform.parent.GetComponent<Ally>().ChangeAllyRankTo<AllyDelegated>();
+                            transform.parent.GetComponent<AllyDelegated>().attackTarget = other.GetComponent<Enemy>();
                         }
                     }
                 }

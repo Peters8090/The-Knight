@@ -5,14 +5,14 @@ using UnityEngine;
 public class Knight : MonoBehaviour
 {
     #region References
-    protected Rigidbody rb;
-    protected Animator animator;
+    internal protected Rigidbody rb;
+    internal protected Animator animator;
     #endregion
     
     #region Physics
-    protected bool isGrounded = true;
+    internal protected bool isGrounded = true;
 
-    protected bool movementLocked = false;
+    internal protected bool movementLocked = false;
 
     /// <summary>
     /// Damage suffered every second while not grounded

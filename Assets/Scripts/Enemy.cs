@@ -24,8 +24,8 @@ public class Enemy : Knight
     {
         if (collision.collider.GetComponent<Ally>() && !IsInvoking()) //make sure that I am not already fighting
         {
-            if (collision.collider.GetComponent<Ally>().allyRank != Ally.AllyRank.Stranger) //check if other is in the ally group
-                Attack(collision.collider.GetComponent<Ally>());
+            if (!collision.collider.GetComponent<AllyStranger>()) //check if other is in the ally group
+                Attack(collision.collider.GetComponent<Knight>());
         }
     }
 }

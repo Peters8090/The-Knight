@@ -471,8 +471,8 @@ GameObject:
   - component: {fileID: 4324985731661801009}
   - component: {fileID: 2712314948401117329}
   - component: {fileID: 8903505522140647954}
-  - component: {fileID: 4328860876287865786}
   - component: {fileID: 4328860876287865787}
+  - component: {fileID: 1622699716}
   m_Layer: 0
   m_Name: AllyBoss
   m_TagString: Ally
@@ -530,20 +530,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1.1195319, z: 1}
   m_Center: {x: 0, y: 0.55976593, z: 0}
---- !u!114 &4328860876287865786
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4328860876287865783}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b46329b98f16434d9c4f4a654da164e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hp: 100
-  attackTarget: {fileID: 0}
 --- !u!54 &4328860876287865787
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -560,6 +546,19 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 2
+--- !u!114 &1622699716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4328860876287865783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a09e27077c7ba424e83e15dd18bdedfb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hp: 100
 --- !u!1 &6911479209525154742
 GameObject:
   m_ObjectHideFlags: 0

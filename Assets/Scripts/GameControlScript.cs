@@ -9,7 +9,7 @@ public class GameControlScript : MonoBehaviour
 
     void Update()
     {
-        gameOver = Ally.Boss == null;
+        gameOver = AllyBoss.Boss == null;
     }
 
     public void ResetButton()
