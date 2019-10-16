@@ -16,13 +16,13 @@ public class AllyBoss : Ally
     #region Swipes
 
     Vector3 lastMousePos = Vector3.zero;
-    float sensitivity = 0.3f * 1280 / Screen.height;
-    float maxMoveLength = 15f * Screen.height / 1280;
-    float slide = 0.05f * Screen.height / 1280;
-    float speedBoostOnTouch = 0.5f * Screen.height / 1280;
+    float sensitivity = 0.3f * 1280 / Screen.height; //0.3f * 1280 / Screen.height;
+    float maxMoveLength = 15f * Screen.height / 1280; //15f * Screen.height / 1280;
+    float slide = 0.05f * 1280 / Screen.height; //0.05f * Screen.height / 1280;
+    float speedBoostOnTouch = 0.35f * 2960 / Screen.height; //0.5f * Screen.height / 1280;
 
     #endregion
-    
+
     #region Member circle params
 
     protected float increment = 30;

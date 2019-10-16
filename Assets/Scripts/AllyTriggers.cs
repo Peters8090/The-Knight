@@ -10,9 +10,9 @@ public class AllyTriggers : MonoBehaviour
         switch(name)
         {
             case "Trigger1":
+                //check if i'm a stranger
                 if (transform.parent.GetComponent<AllyStranger>())
                 {
-                    Debug.Log(other.name);
                     //other is an ally member/boss, which invites (me) Ally Stranger to the ally group
                     if (other.GetComponent<AllyMember>() || other.GetComponent<AllyBoss>())
                     {

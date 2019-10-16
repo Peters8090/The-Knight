@@ -46,6 +46,8 @@ public class Ally : Knight
     /// <typeparam name="Rank"></typeparam>
     internal protected void ChangeAllyRankTo<Rank>() where Rank : Component
     {
+        if (gameObject.GetComponent<Rank>())
+            return;
         gameObject.AddComponent<Rank>();
         Destroy(this);
     }
