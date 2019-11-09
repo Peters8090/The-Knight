@@ -15,11 +15,9 @@ public class AllyBoss : Ally
 
     #region Swipes
 
-    Vector3 lastMousePos = Vector3.zero;
-    float sensitivity = 0.3f * 1280 / Screen.height; //0.3f * 1280 / Screen.height;
-    float maxMoveLength = 15f * Screen.height / 1280; //15f * Screen.height / 1280;
-    float slide = 0.05f * 1280 / Screen.height; //0.05f * Screen.height / 1280;
-    float speedBoostOnTouch = 0.35f * 2960 / Screen.height; //0.5f * Screen.height / 1280;
+    Vector3 mouseStartPos = Vector3.zero;
+    Vector3 playerStartPos = Vector3.zero;
+    float speedBoostOnTouch = 0.05f;
 
     #endregion
 
@@ -82,24 +80,34 @@ public class AllyBoss : Ally
 
         if (!movementLocked)
         {
-            //swipes work both on the mobile and pc
-            if (Input.GetMouseButtonDown(0))
+            if(Input.GetMouseButtonDown(0))
             {
-                lastMousePos = Input.mousePosition;
+                Plane plane = new Plane(Vector3.up, 0);
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+                if (plane.Raycast(ray, out float dist))
+                {
+                    mouseStartPos = ray.GetPoint(dist);
+                    playerStartPos = transform.position;
+                }
             }
-            else if (Input.GetMouseButton(0))
+
+            if (Input.GetMouseButton(0))
             {
-                Vector3 deltaMousePos = -(lastMousePos - Input.mousePosition);
-                lastMousePos = Input.mousePosition;
-
-                //calculate the finger move
-                deltaMousePos = Vector3.ClampMagnitude(deltaMousePos, maxMoveLength);
-
                 //if any touch happens, accelerate forward
                 rb.velocity += Vector3.forward * speedBoostOnTouch;
 
-                //move with the swipe
-                rb.velocity += new Vector3(deltaMousePos.x, 0, deltaMousePos.y) * sensitivity - rb.velocity * slide;
+                Plane plane = new Plane(Vector3.up, 0);
+                Vector3 move = new Vector3();
+
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+                if(plane.Raycast(ray, out float dist))
+                {
+                    Vector3 mousePos = ray.GetPoint(dist);
+                    move = mousePos - mouseStartPos;
+                    transform.position = playerStartPos + move;
+                }
             }
 
             //player can't move backwards (he can slow down)
