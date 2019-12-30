@@ -15,9 +15,8 @@ public class AllyBoss : Ally
 
     #region Swipes
 
-    Vector3 mouseStartPos = Vector3.zero;
-    Vector3 playerStartPos = Vector3.zero;
-    float speedBoostOnTouch = 0.05f;
+    Vector3 startFingerPos = Vector3.zero,
+            startPlayerPos = Vector3.zero;
 
     #endregion
 
@@ -30,7 +29,7 @@ public class AllyBoss : Ally
 
     #region Movement
 
-    float zSpeed = 15f;
+    float speedBoostOnTouch = 0.08f;
 
     #endregion
 
@@ -45,8 +44,10 @@ public class AllyBoss : Ally
 
         highlight.enabled = true;
         highlight.color = Color.red;
+                
+        animator.SetFloat("VelZ", Mathf.Abs(rb.velocity.z / midSpeed));
 
-        animator.SetFloat("VelZ", Mathf.Abs(rb.velocity.z / (zSpeed / 1.3f)));
+        //max value is 1
         if (animator.GetFloat("VelZ") > 1)
             animator.SetFloat("VelZ", 1);
 
@@ -80,6 +81,7 @@ public class AllyBoss : Ally
 
         if (!movementLocked)
         {
+            //on touch start
             if(Input.GetMouseButtonDown(0))
             {
                 Plane plane = new Plane(Vector3.up, 0);
@@ -87,36 +89,35 @@ public class AllyBoss : Ally
 
                 if (plane.Raycast(ray, out float dist))
                 {
-                    mouseStartPos = ray.GetPoint(dist);
-                    playerStartPos = transform.position;
+                    startFingerPos = ray.GetPoint(dist);
+                    startPlayerPos = transform.position;
                 }
             }
 
+            //while touching
             if (Input.GetMouseButton(0))
             {
                 //if any touch happens, accelerate forward
                 rb.velocity += Vector3.forward * speedBoostOnTouch;
 
                 Plane plane = new Plane(Vector3.up, 0);
-                Vector3 move = new Vector3();
-
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-                if(plane.Raycast(ray, out float dist))
+                if (plane.Raycast(ray, out float dist))
                 {
-                    Vector3 mousePos = ray.GetPoint(dist);
-                    move = mousePos - mouseStartPos;
-                    transform.position = playerStartPos + move;
+                    Vector3 curFingerPos = ray.GetPoint(dist);
+                    Vector3 touchDelta = curFingerPos - startFingerPos;
+
+                    Vector3 predictedPos = startPlayerPos + touchDelta;
+                    predictedPos.z = transform.position.z; //z move is locked
+
+                    transform.position = predictedPos;
                 }
             }
 
-            //player can't move backwards (he can slow down)
-            if (rb.velocity.z < 0)
-                rb.velocity += Vector3.forward * Mathf.Abs(rb.velocity.z);
-
             //constant forward force
-            if (rb.velocity.z < zSpeed * 0.5f)
-                rb.velocity += Vector3.forward * zSpeed * 0.5f * Time.deltaTime;
+            if (rb.velocity.z < minSpeed)
+                rb.velocity += Vector3.forward * minSpeed * Time.deltaTime;
         }
     }
 }

@@ -13,12 +13,6 @@ public class AllyDelegated : Ally
         }
     }
 
-    #region Movement
-
-    float zSpeed = 12f;
-
-    #endregion
-
     #region Fighting
 
     [HideInInspector]
@@ -45,9 +39,9 @@ public class AllyDelegated : Ally
             if (Vector3.Distance(transform.position, attackTarget.transform.position) > maxDistToEnemy)
             {
                 transform.LookAt(attackTarget.transform);
-                transform.Translate(Vector3.forward * zSpeed * Time.deltaTime);
+                transform.Translate(Vector3.forward * maxSpeed * Time.deltaTime);
             }
         }
-        catch (Exception e) { }
+        catch { }
     }
 }

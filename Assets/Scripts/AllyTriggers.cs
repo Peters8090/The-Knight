@@ -22,14 +22,14 @@ public class AllyTriggers : MonoBehaviour
                 break;
 
             case "Trigger2":
-                if (other.GetComponent<Enemy>())
+                if (transform.parent.GetComponent<AllyMember>())
                 {
-                    //check if other isn't already attacked by an ally
-                    if (AllyDelegated.Delegated.Where(ally => ally.attackTarget == other.GetComponent<Enemy>()).Count() == 0)
+                    if (other.GetComponent<Enemy>())
                     {
-                        //delegate the parent ally (if available) to attack the enemy
-                        if (!transform.parent.GetComponent<AllyDelegated>())
+                        //check if other isn't already attacked by an ally
+                        if (AllyDelegated.Delegated.Where(ally => ally.attackTarget == other.GetComponent<Enemy>()).Count() == 0)
                         {
+                            //delegate the parent ally (if available) to attack the enemy
                             transform.parent.GetComponent<Ally>().ChangeAllyRankTo<AllyDelegated>();
                             transform.parent.GetComponent<AllyDelegated>().attackTarget = other.GetComponent<Enemy>();
                         }

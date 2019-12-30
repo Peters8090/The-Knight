@@ -18,6 +18,8 @@ public class Knight : MonoBehaviour
     /// Damage suffered every second while not grounded
     /// </summary>
     protected float fallDamage = 80f;
+
+    protected float minSpeed = 8f, midSpeed = 12f, maxSpeed = 16f;
     #endregion
 
     #region Stats
